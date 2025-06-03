@@ -35,8 +35,8 @@ print(response)
 ## ⚡ Özellikler
 
 - 🇹🇷 **Türkçe Optimize**: Native Türkçe tıbbi terminoloji
-- 🎯 **Aciliyet Sınıflandırması**: Çok Acil → Normal arası değerlendirme
-- 🧠 **LoRA Fine-tuned**: Efficient training ile optimize edilmiş
+- 🎯 **Aciliyet Sınıflandırması**: Çok Acil - Acil - Normal arası değerlendirme
+- 🧠 **LoRA Fine-tuned**: Efficient training ile optimize edildi
 - 📋 **Triage Sistemi**: Hasta önceliklendirmesi için tasarlandı
 - ⚡ **Hızlı İnference**: 8B parametreli efficient model
 
@@ -46,7 +46,7 @@ print(response)
 |---------|-------|
 | **Base Model** | `unsloth/llama-3-8b-bnb-4bit` |
 | **Fine-tuning** | LoRA (r=16, α=16) |
-| **Dil** | Türkçe & İngilizce |
+| **Dil** | Türkçe |
 | **Max Length** | 2048 tokens |
 | **Boyut** | ~15GB |
 
@@ -69,24 +69,10 @@ Değerlendirme: Migren veya intrakranial basınç artışı olasılığı
 > - Profesyonel tıbbi tavsiye yerine geçmez
 > - Acil durumlarda **112**'yi arayın
 
-## 🛠️ Kurulum
-
-```bash
-pip install transformers torch
-```
-
 ## 📊 Kullanım Alanları
 
 ✅ **Uygun**: Tıbbi eğitim, araştırma, simülasyon  
 ❌ **Uygun Değil**: Gerçek hasta değerlendirmesi, teşhis
-
-## 🤝 Katkıda Bulunma
-
-1. Fork edin
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Commit edin (`git commit -m 'Add amazing feature'`)
-4. Push edin (`git push origin feature/amazing-feature`)
-5. Pull Request açın
 
 ## 📄 Lisans
 
@@ -95,7 +81,7 @@ Apache 2.0 License - Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 ## 🔗 Bağlantılar
 
 - 🤗 [Hugging Face Model](https://huggingface.co/dousery/llama3-turkish-medical-triage)
-- 📧 İletişim: [GitHub Issues](https://github.com/username/repo/issues)
+- 📧 İletişim: [GitHub Issues](https://github.com/dousery/FineTune-Triage/issues)
 
 ---
 
@@ -103,6 +89,6 @@ Apache 2.0 License - Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
 **⭐ Projeyi beğendiyseniz yıldız vermeyi unutmayın!**
 
-*Türkiye'de tıbbi AI araştırmalarına katkıda bulunuyor.*
+*Türkiye'de tıbbi AI araştırmalara katkıda bulunması için oluşturulmuştur.*
 
 </div>
