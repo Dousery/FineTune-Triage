@@ -1,6 +1,6 @@
 # 🏥 Turkish Medical Emergency Triage Model
 
-[![Hugging Face Model](https://img.shields.io/badge/🤗%20Hugging%20Face-Model-yellow)](https://huggingface.co/dousery/llama3-turkish-medical-triage)
+[![Hugging Face Model](https://img.shields.io/badge/🤗%20Hugging%20Face-Model-yellow)](https://huggingface.co/dousery/turkish-medical-triage-llama3-gguf)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Turkish](https://img.shields.io/badge/Language-Turkish-red)](https://github.com/topics/turkish)
 [![Medical AI](https://img.shields.io/badge/Domain-Medical%20AI-green)](https://github.com/topics/medical-ai)
