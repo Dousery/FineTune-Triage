@@ -7,29 +7,69 @@
 
 > **Llama-3 8B** tabanlı Türkçe tıbbi aciliyet değerlendirme modeli. LoRA fine-tuning ile hasta şikayetlerini analiz eder ve aciliyet seviyesi belirler.
 
-## 🚀 Hızlı Başlangıç
+## 🚀 Kullanım
 
 ```python
-from transformers import AutoTokenizer, AutoModelForCausalLM
+import os
+from llama_cpp import Llama
 
-# Model ve tokenizer yükle
-model_name = "dousery/llama3-turkish-medical-triage"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name)
+def load_model(path):
+    try:
+        print(f"🔄 Model yükleniyor: {os.path.basename(path)}")
+        model = Llama(model_path=path, n_ctx=4096, n_threads=8, verbose=False, n_gpu_layers=0)
+        print("✅ Model yüklendi")
+        return model
+    except Exception as e:
+        print(f"❌ Yükleme hatası: {e}")
+        return None
 
-# Örnek kullanım
-prompt = """<|im_start|>system
+def run_inference(model, prompt):
+    try:
+        result = model(prompt=prompt, max_tokens=300, temperature=0.5, stop=["<|im_end|>"], echo=False)
+        return result['choices'][0]['text'].strip()
+    except Exception as e:
+        print(f"❌ Inference hatası: {e}")
+        return None
+
+def main():
+    print("🚀 GGUF Model Chat - Çıkmak için 'q' yaz")
+    path = input("Model dosya yolu (varsayılan: model.gguf): ").strip() or "model.gguf"
+
+    if not os.path.exists(path):
+        print(f"❌ Dosya bulunamadı: {path}")
+        return
+
+    model = load_model(path)
+    if not model:
+        return
+
+    while True:
+        user_input = input("\n👤 Siz: ").strip()
+        if user_input.lower() in ['q', 'quit', 'çık', 'exit']:
+            break
+        if not user_input:
+            continue
+
+        prompt = f"""<|im_start|>system
 Sen tıbbi aciliyet değerlendirmesi yapan bir asistansın.
 <|im_end|>
 <|im_start|>user
-Hasta şikayeti: Göğsümde şiddetli ağrı var, nefes almakta zorlanıyorum
+{user_input}
 <|im_end|>
-<|im_start|>assistant"""
+<|im_start|>assistant
+"""
 
-inputs = tokenizer(prompt, return_tensors="pt")
-outputs = model.generate(**inputs, max_length=256, temperature=0.7)
-response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-print(response)
+        print("🔄 Düşünüyor...")
+        response = run_inference(model, prompt)
+        print(f"🤖 Asistan: {response}" if response else "❌ Yanıt alınamadı")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except ImportError:
+        print("❌ llama-cpp-python eksik! Yüklemek için:\n")
+        print("pip install llama-cpp-python")
+
 ```
 
 ## ⚡ Özellikler
