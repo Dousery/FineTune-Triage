@@ -1,82 +1,130 @@
-import modal
+import os
+from llama_cpp import Llama
 
-# Create a Modal app
-app = modal.App("medical-finetune")
-volume = modal.Volume.from_name("medical-finetune-vol")
+def load_model(model_path, context_size=4096, threads=8):
+    """
+    GGUF modelini yükle
+    """
+    try:
+        print(f"🔄 Model yükleniyor: {os.path.basename(model_path)}")
+        
+        llm = Llama(
+            model_path=model_path,
+            n_ctx=context_size,        # context boyutu
+            n_threads=threads,         # thread sayısı
+            verbose=False,             # verbose çıktı kapalı
+            n_gpu_layers=0            # CPU kullanımı için 0, GPU için artırın
+        )
+        
+        print("✅ Model başarıyla yüklendi!")
+        return llm
+        
+    except Exception as e:
+        print(f"❌ Model yüklenirken hata: {e}")
+        return None
 
-image = (
-    modal.Image.debian_slim(python_version="3.10")
-    .pip_install(
-        "torch", "transformers", "accelerate", "unsloth", "datasets", "bitsandbytes"
-    )
-)
+def run_inference(llm, prompt, max_tokens=300, temperature=0.7):
+    """
+    Inference yap
+    """
+    try:
+        response = llm(
+            prompt=prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            stop=["<|im_end|>"],      # stop token
+            echo=False                # prompt'u tekrar gösterme
+        )
+        
+        return response['choices'][0]['text'].strip()
+        
+    except Exception as e:
+        print(f"❌ Inference hatası: {e}")
+        return None
 
-MODEL_NAME = "unsloth/llama-3-8b-bnb-4bit"
-MAX_SEQ_LENGTH = 2048
-
-@app.function(gpu="A100", image=image, volumes={"/root/vol": volume})
-def infer(prompt: str) -> str:
-    from unsloth import FastLanguageModel
-    from transformers import AutoTokenizer
-    import torch
-
-    # Load base model
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=MODEL_NAME,
-        max_seq_length=MAX_SEQ_LENGTH,
-        load_in_4bit=True,
-    )
-
-    # Apply LoRA configuration
-    model = FastLanguageModel.get_peft_model(
-        model,
-        r=16,
-        target_modules=[
-            "q_proj", "k_proj", "v_proj", "o_proj", 
-            "gate_proj", "up_proj", "down_proj"
-        ],
-        lora_alpha=16,
-        lora_dropout=0.1,
-        bias="none",
-        use_gradient_checkpointing="unsloth",
-        random_state=42,
-    )
-
-    # Load the fine-tuned weights
-    model.load_adapter("/root/vol/finetuned", adapter_name="default")
-
-    # Tokenize input
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-
-    # Get the <|im_end|> token ID to stop generation correctly
-    eos_token_id = tokenizer.convert_tokens_to_ids("<|im_end|>")
-
-    # Generate text
-    outputs = model.generate(
-        **inputs,
-        max_new_tokens=150,
-        do_sample=True,
-        temperature=0.7,
-        top_p=0.9,
-        eos_token_id=eos_token_id,
-    )
-
-    # Decode and clean up the output
-    decoded = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=False)
-    cleaned = decoded.split("<|im_end|>")[0].strip()
-
-    return cleaned
-
-
-@app.local_entrypoint()
 def main():
-    prompt = """<|im_start|>system
+    """
+    İnteraktif chat
+    """
+    print("🚀 GGUF Model İnteraktif Chat")
+    print("=" * 40)
+    
+    # Model yolunu al
+    model_path = input("GGUF model dosyası yolu (varsayılan: model.gguf): ").strip()
+    if not model_path:
+        model_path = "model.gguf"
+    
+    if not os.path.exists(model_path):
+        print(f"❌ Model dosyası bulunamadı: {model_path}")
+        return
+    
+    # Modeli yükle
+    llm = load_model(model_path)
+    if not llm:
+        return
+    
+    print("\n💬 İnteraktif Chat Başladı")
+    print("Çıkmak için 'q' veya 'quit' yazın")
+    print("=" * 40)
+    
+    while True:
+        user_input = input("\n👤 Siz: ").strip()
+        
+        if user_input.lower() in ['q', 'quit', 'çık', 'exit']:
+            print("👋 Görüşmek üzere!")
+            break
+        
+        if not user_input:
+            continue
+        
+        # Prompt formatla
+        prompt = f"""<|im_start|>system
 Sen tıbbi aciliyet değerlendirmesi yapan bir asistansın.
 <|im_end|>
 <|im_start|>user
-Hasta şikayeti: Yemek yedikten sonra karnımda şiddetli bir ağrı var, şişkinlik ve gaz da eşlik ediyor
+{user_input}
 <|im_end|>
 <|im_start|>assistant
 """
-    response = infer.remote(prompt)
-    print("Model Yanıtı:", response)
+        
+        print("🔄 Düşünüyor...")
+        
+        response = run_inference(
+            llm=llm,
+            prompt=prompt,
+            max_tokens=300,
+            temperature=0.5
+        )
+        
+        if response:
+            print(f"🤖 Asistan: {response}")
+        else:
+            print("❌ Yanıt alınamadı, tekrar deneyin")
+
+if __name__ == "__main__":
+    # Önce kütüphaneyi yükle
+    try:
+        from llama_cpp import Llama
+        main()
+    except ImportError:
+        print("❌ llama-cpp-python kütüphanesi bulunamadı!")
+        print("Yüklemek için:")
+        print("pip install llama-cpp-python")
+        print("\nGPU desteği için:")
+        print("pip install llama-cpp-python[cuda]  # NVIDIA GPU")
+        print("pip install llama-cpp-python[metal] # Mac M1/M2")
+
+# Kurulum komutları:
+"""
+# CPU versiyonu:
+pip install llama-cpp-python
+
+# CUDA GPU desteği:
+pip install llama-cpp-python[cuda]
+
+# Mac Metal desteği:
+pip install llama-cpp-python[metal]
+
+# Manuel derleme ile:
+CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python
+"""
