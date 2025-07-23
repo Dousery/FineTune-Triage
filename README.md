@@ -7,6 +7,7 @@ An open-source Turkish-language **medical triage and diagnosis model**, fine-tun
 > ⚕️ This model predicts both the **urgency level** of a Turkish medical complaint and provides a **clear response message**, emulating how a virtual assistant might reply in a triage scenario.
 
 ---
+<img width="1611" height="670" alt="image" src="https://github.com/user-attachments/assets/34f704b6-a702-4f03-93de-451ba9d47039" />
 
 ## 🧠 Model Capabilities
 
