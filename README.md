@@ -81,7 +81,7 @@ Each training sample includes:
 
 ## ✍️ Author
 
-- [Doğuser Yarar](https://huggingface.co/dousery)  
+- [Dousery](https://huggingface.co/dousery)  
 🧪 Turkish NLP / AI researcher focused on public-benefit applications
 
 ---
